@@ -1,67 +1,41 @@
-# Dependencies
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
 node_modules/
-.pnpm-store/
-
-# Build outputs
-dist/
-build/
-.next/
-.expo/
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.Python
-venv/
-.venv/
-env/
-.env/
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-.DS_Store
-
-# Testing
-coverage/
-.nyc_output/
-*.lcov
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# Mobile specific
-*.ipa
-*.apk
-*.aab
-android/.gradle/
-android/app/build/
-ios/Pods/
-ios/build/
 
 # Expo
 .expo/
 dist/
 web-build/
+expo-env.d.ts
 
-# Secrets
-*.pem
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
 *.key
-secrets/
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android

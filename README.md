@@ -1,65 +1,69 @@
-# Structa AI
+# Structa AI Mobile
 
-AI-powered mobile application that captures physical documents using a device camera and converts them into structured digital formats such as text, tables, and spreadsheets.
+AI-powered document scanner that converts physical documents into structured digital formats.
 
-## Features
+## Tech Stack
 
-- 📸 Document capture with auto-crop overlay
-- 📄 Multi-page scanning support
-- 🔍 OCR for printed and handwritten text
-- 📊 Table detection and extraction
-- 📁 Export to PDF, Excel, and plain text
-- ☁️ Cloud processing with async job handling
+- **Expo SDK 54** (Managed Workflow)
+- **React Native**
+- **TypeScript** (Strict Mode)
 
-## Architecture
+## Getting Started
 
-- **Mobile**: Expo / React Native (TypeScript)
-- **Backend**: Node.js/NestJS API + Python AI workers
-- **Storage**: S3-compatible object storage
-- **Queue**: Redis or SQS for async processing
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+
+# Run on iOS
+npm run ios
+
+# Run on Android
+npm run android
+```
 
 ## Project Structure
 
 ```
-structa-ai/
-├── apps/
-│   └── mobile/          # Expo React Native app
-├── packages/
-│   ├── api/             # Backend API service
-│   ├── ai-workers/      # Python AI processing workers
-│   └── shared/          # Shared types and utilities
-├── docs/                # Documentation
-└── infrastructure/      # Deployment configs
+structa-ai-mobile/
+├── app/                # UI Layer (Screens, Components, Navigation)
+├── domain/             # Business Logic (Models, Workflows, Services)
+├── infra/              # Platform & Integrations (Camera, API, Storage)
+├── config/             # App configuration
+├── assets/             # Images, fonts
+└── docs/               # Documentation
 ```
 
-## Getting Started
+## Phase 1 Checklist
 
-### Prerequisites
+- [x] Expo project setup
+- [x] TypeScript strict mode
+- [x] Folder structure
+- [x] Core data models
+- [x] API client
+- [x] Camera permission hook
+- [x] Image preprocessor
+- [x] Upload manager
+- [x] Local storage
+- [x] Scan workflow
+- [x] Export service
+- [ ] Screen components
+- [ ] Navigation setup
 
-- Node.js 20+
-- pnpm
-- Python 3.11+
-- Expo CLI
+## Environment Variables
 
-### Installation
+Create a `.env` file:
 
-```bash
-# Install dependencies
-pnpm install
-
-# Start mobile app
-cd apps/mobile
-pnpm start
-
-# Start backend
-cd packages/api
-pnpm dev
+```env
+EXPO_PUBLIC_API_URL=http://localhost:3000
 ```
 
 ## Documentation
 
-See [architechture.md](./architechture.md) for detailed system architecture.
+- [Architecture](docs/ARCHITECTURE.md)
 
 ## License
 
-MIT
+Private - Structa AI
