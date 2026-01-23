@@ -32,8 +32,15 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
 
   const loadDocs = async () => {
     setLoading(true);
-    const docs = await loadDocuments();
-    setDocuments(docs);
+    try {
+      const docs = await loadDocuments();
+      // Filter out invalid entries
+      const validDocs = (docs || []).filter(d => d && d.id);
+      setDocuments(validDocs);
+    } catch (error) {
+      console.error('Failed to load documents:', error);
+      setDocuments([]);
+    }
     setLoading(false);
   };
 
@@ -41,29 +48,34 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
     navigation.navigate('Camera');
   };
 
-  const renderDocument = ({ item }: { item: DocumentSummary }) => (
-    <View style={styles.documentCard}>
-      <View style={styles.documentInfo}>
-        <Text style={styles.documentTitle}>
-          {item.title || `Scan ${item.id.slice(0, 8)}`}
-        </Text>
-        <Text style={styles.documentMeta}>
-          {item.pageCount} page{item.pageCount !== 1 ? 's' : ''} •{' '}
-          {new Date(item.createdAt).toLocaleDateString()}
-        </Text>
+  const renderDocument = ({ item }: { item: DocumentSummary }) => {
+    // Defensive check for invalid data
+    if (!item || !item.id) return null;
+    
+    return (
+      <View style={styles.documentCard}>
+        <View style={styles.documentInfo}>
+          <Text style={styles.documentTitle}>
+            {item.title || `Scan ${item.id.slice(0, 8)}`}
+          </Text>
+          <Text style={styles.documentMeta}>
+            {item.pageCount || 0} page{item.pageCount !== 1 ? 's' : ''} •{' '}
+            {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Unknown'}
+          </Text>
+        </View>
+        <View
+          style={[
+            styles.statusBadge,
+            item.status === 'completed' && styles.statusCompleted,
+            item.status === 'processing' && styles.statusProcessing,
+            item.status === 'failed' && styles.statusFailed,
+          ]}
+        >
+          <Text style={styles.statusText}>{item.status || 'pending'}</Text>
+        </View>
       </View>
-      <View
-        style={[
-          styles.statusBadge,
-          item.status === 'completed' && styles.statusCompleted,
-          item.status === 'processing' && styles.statusProcessing,
-          item.status === 'failed' && styles.statusFailed,
-        ]}
-      >
-        <Text style={styles.statusText}>{item.status}</Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>

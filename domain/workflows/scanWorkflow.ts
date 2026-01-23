@@ -87,9 +87,11 @@ export class ScanWorkflow {
       // Preprocess image
       const processed = await preprocessImage(imageUri);
 
-      // Add to upload queue
+      // Upload directly using API client (which has the auth token)
       this.setState({ state: 'uploading' });
-      await uploadManager.addToQueue(this.state.documentId, processed.uri);
+      console.log('[Scan] Uploading page for document:', this.state.documentId);
+      await apiClient.uploadImage(this.state.documentId, processed.uri);
+      console.log('[Scan] Upload successful');
 
       // Update pages
       this.setState({
@@ -102,6 +104,7 @@ export class ScanWorkflow {
         pageCount: this.state.pages.length,
       });
     } catch (error) {
+      console.error('[Scan] Upload failed:', error);
       this.setState({
         state: 'error',
         error: error instanceof Error ? error.message : 'Failed to add page',

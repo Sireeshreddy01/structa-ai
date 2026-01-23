@@ -129,7 +129,8 @@ class ApiClient {
 
   // Document endpoints
   async createDocument(): Promise<{ id: string; uploadUrl: string }> {
-    return this.request('/api/documents', { method: 'POST' });
+    const result = await this.request<{ success: boolean; data: { document: { id: string } } }>('/api/documents', { method: 'POST' });
+    return { id: result.data.document.id, uploadUrl: '' };
   }
 
   async getDocument(id: string): Promise<Document> {
@@ -156,13 +157,43 @@ class ApiClient {
       name: 'scan.jpg',
     } as any);
 
-    return this.request(`/api/documents/${documentId}/pages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      body: formData,
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+    const headers: Record<string, string> = {};
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
+    try {
+      console.log('[API] Uploading image to:', `${this.baseUrl}/api/uploads/${documentId}/pages`);
+      console.log('[API] Token present:', !!this.token);
+      
+      const response = await fetch(`${this.baseUrl}/api/uploads/${documentId}/pages`, {
+        method: 'POST',
+        signal: controller.signal,
+        headers,
+        body: formData,
+      });
+
+      const text = await response.text();
+      console.log('[API] Upload response:', text.substring(0, 200));
+      
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Invalid JSON response: ${text.substring(0, 100)}`);
+      }
+
+      if (!response.ok) {
+        throw new Error(data?.error?.message || data?.message || `Upload failed: ${response.status}`);
+      }
+
+      return data?.data?.page || data;
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 
   // Processing status

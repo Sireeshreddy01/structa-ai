@@ -9,6 +9,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppConfig } from '../../config/app.config';
 
+const TOKEN_KEY = 'structa_auth_token';
+
 export interface UploadTask {
   id: string;
   documentId: string;
@@ -88,15 +90,22 @@ class UploadManager {
     await this.saveQueue();
 
     try {
+      // Get auth token directly from AsyncStorage
+      const token = await AsyncStorage.getItem(TOKEN_KEY);
+      console.log('[Upload] Token available:', !!token);
+      
       const uploadResult = await uploadAsync(
-        `${AppConfig.api.baseUrl}/api/documents/${task.documentId}/pages`,
+        `${AppConfig.api.baseUrl}/api/uploads/${task.documentId}/pages`,
         task.imageUri,
         {
           fieldName: 'image',
           httpMethod: 'POST',
           uploadType: FileSystemUploadType.MULTIPART,
+          headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
         }
       );
+
+      console.log('[Upload] Result status:', uploadResult.status);
 
       if (uploadResult.status >= 200 && uploadResult.status < 300) {
         task.status = 'completed';
@@ -104,6 +113,7 @@ class UploadManager {
         throw new Error(`Upload failed with status ${uploadResult.status}`);
       }
     } catch (error) {
+      console.error('[Upload] Error:', error);
       task.retryCount++;
       task.error = error instanceof Error ? error.message : 'Unknown error';
       task.status = task.retryCount >= 3 ? 'failed' : 'pending';

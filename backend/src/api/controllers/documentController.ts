@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../../config/database.js';
 import { AuthenticatedRequest, createError } from '../middlewares/index.js';
-import { jobQueue } from '../../services/queue/index.js';
+import { addJob, isQueueEnabled } from '../../services/queue/index.js';
 
 // Validation schemas
 export const createDocumentSchema = z.object({
@@ -219,14 +219,24 @@ export async function processDocument(
     data: { status: 'PROCESSING' },
   });
 
-  // Queue processing jobs
-  await jobQueue.addJob({
-    documentId: id,
-    type: 'PREPROCESS',
-    payload: {
-      pageIds: document.pages.map((p) => p.id),
-    },
-  });
+  // Queue processing jobs if queue is enabled
+  if (isQueueEnabled()) {
+    await addJob({
+      documentId: id,
+      type: 'PREPROCESS',
+      payload: {
+        pageIds: document.pages.map((p) => p.id),
+      },
+    });
+  } else {
+    // Mock processing when queue is disabled - immediately mark as completed
+    setTimeout(async () => {
+      await prisma.document.update({
+        where: { id },
+        data: { status: 'COMPLETED' },
+      });
+    }, 2000);
+  }
 
   res.json({
     success: true,
