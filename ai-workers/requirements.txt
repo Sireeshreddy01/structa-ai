@@ -1,0 +1,35 @@
+# AI Workers - Python Processing Pipeline
+# Structa AI Document Processing
+
+# Core dependencies
+opencv-python>=4.8.0
+Pillow>=10.0.0
+numpy>=1.25.0
+
+# OCR
+pytesseract>=0.3.10
+easyocr>=1.7.0
+
+# Layout detection
+layoutparser>=0.3.4
+detectron2>=0.6
+
+# Table extraction
+img2table>=1.2.0
+camelot-py[cv]>=0.11.0
+
+# Machine Learning
+torch>=2.0.0
+torchvision>=0.15.0
+transformers>=4.35.0
+
+# API & Communication
+fastapi>=0.104.0
+uvicorn>=0.24.0
+redis>=5.0.0
+httpx>=0.25.0
+
+# Utilities
+pydantic>=2.5.0
+python-multipart>=0.0.6
+structlog>=23.2.0
