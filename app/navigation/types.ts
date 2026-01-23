@@ -6,6 +6,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { Document } from '../../domain/models';
 
 export type RootStackParamList = {
+  Login: undefined;
+  Register: undefined;
   Home: undefined;
   Camera: undefined;
   Processing: { documentId: string };
@@ -13,6 +15,8 @@ export type RootStackParamList = {
   DocumentList: undefined;
 };
 
+export type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
+export type RegisterScreenProps = NativeStackScreenProps<RootStackParamList, 'Register'>;
 export type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
 export type CameraScreenProps = NativeStackScreenProps<RootStackParamList, 'Camera'>;
 export type ProcessingScreenProps = NativeStackScreenProps<RootStackParamList, 'Processing'>;

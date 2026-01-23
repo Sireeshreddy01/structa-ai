@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { authRateLimiter, validate } from '../middlewares/index.js';
 import {
   register,
@@ -12,9 +12,14 @@ import { authMiddleware } from '../middlewares/index.js';
 
 const router = Router();
 
-router.post('/register', authRateLimiter, validate(registerSchema), register);
-router.post('/login', authRateLimiter, validate(loginSchema), login);
-router.get('/profile', authMiddleware, getProfile);
-router.post('/logout', authMiddleware, logout);
+// Wrap async handlers to catch errors
+const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+router.post('/register', authRateLimiter, validate(registerSchema), asyncHandler(register));
+router.post('/login', authRateLimiter, validate(loginSchema), asyncHandler(login));
+router.get('/profile', authMiddleware, asyncHandler(getProfile));
+router.post('/logout', authMiddleware, asyncHandler(logout));
 
 export const authRoutes = router;
