@@ -2,10 +2,21 @@
  * Application configuration
  */
 
+import { Platform } from 'react-native';
+
+// Use localhost on web, but actual IP for mobile devices
+const getApiUrl = () => {
+  if (Platform.OS === 'web') {
+    return 'http://localhost:3000';
+  }
+  // Your Mac's local IP - update this if it changes
+  return process.env.EXPO_PUBLIC_API_URL || 'http://192.168.204.174:3000';
+};
+
 export const AppConfig = {
   // API Configuration
   api: {
-    baseUrl: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000',
+    baseUrl: getApiUrl(),
     timeout: 30000,
   },
 

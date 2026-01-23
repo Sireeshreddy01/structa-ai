@@ -65,16 +65,25 @@ class ApiClient {
     }
 
     try {
+      console.log('[API] Request:', this.baseUrl + endpoint);
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         ...options,
         signal: controller.signal,
         headers,
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      console.log('[API] Response text:', text.substring(0, 200));
+      
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Invalid JSON response: ${text.substring(0, 100)}`);
+      }
 
       if (!response.ok) {
-        throw new Error(data.message || `API Error: ${response.status}`);
+        throw new Error(data?.error?.message || data?.message || `API Error: ${response.status}`);
       }
 
       return data;
@@ -89,8 +98,14 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    await this.saveToken(result.data.token);
-    return { token: result.data.token };
+    
+    const token = result?.data?.token;
+    if (!token) {
+      throw new Error('Login failed - no token received');
+    }
+    
+    await this.saveToken(token);
+    return { token };
   }
 
   async register(name: string, email: string, password: string): Promise<{ token: string }> {
@@ -98,8 +113,14 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ name, email, password }),
     });
-    await this.saveToken(result.data.token);
-    return { token: result.data.token };
+    
+    const token = result?.data?.token;
+    if (!token) {
+      throw new Error('Registration failed - no token received');
+    }
+    
+    await this.saveToken(token);
+    return { token };
   }
 
   async logout(): Promise<void> {
