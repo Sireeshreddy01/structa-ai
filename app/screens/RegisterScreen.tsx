@@ -215,7 +215,24 @@ export function RegisterScreen({ onRegisterSuccess, onNavigateToLogin }: Registe
                   <MaterialIcons name="apple" size={26} color={COLORS.primary} />
                 </TouchableOpacity>
               </View>
+
+              {/* Sign In Link */}
+              <TouchableOpacity 
+                style={styles.signInContainer}
+                onPress={onNavigateToLogin}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.signInText}>
+                  Already have an account? <Text style={styles.signInLink}>Sign In</Text>
+                </Text>
+              </TouchableOpacity>
             </View>
+          </View>
+
+          {/* Page Indicator Dots */}
+          <View style={styles.dotsContainer}>
+            <View style={styles.dotInactive} />
+            <View style={styles.dotActive} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -237,6 +254,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -244,6 +262,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 16,
     marginTop: 8,
+    width: '100%',
   },
   backButton: {
     width: 40,
@@ -267,6 +286,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     flex: 1,
     justifyContent: 'flex-end',
+    width: '100%',
   },
   card: {
     backgroundColor: COLORS.card,
@@ -435,6 +455,39 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#4285F4',
+  },
+  signInContainer: {
+    alignItems: 'center',
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  signInText: {
+    fontSize: 13,
+    fontWeight: '400',
+    color: COLORS.textMuted,
+  },
+  signInLink: {
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 24,
+  },
+  dotInactive: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.borderDark,
+  },
+  dotActive: {
+    width: 20,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.textPrimary,
   },
 });
 

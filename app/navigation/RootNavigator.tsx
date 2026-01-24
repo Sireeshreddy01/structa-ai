@@ -65,7 +65,10 @@ export function RootNavigator() {
       {/* Onboarding Flow - Swipeable */}
       <Stack.Screen
         name="Onboarding"
-        options={{ headerShown: false }}
+        options={{ 
+          headerShown: false,
+          animation: 'fade',
+        }}
       >
         {(props) => (
           <OnboardingFlow
@@ -78,7 +81,10 @@ export function RootNavigator() {
       {/* Pre-Signup Welcome Screen */}
       <Stack.Screen
         name="PreSignup"
-        options={{ headerShown: false }}
+        options={{ 
+          headerShown: false,
+          animation: 'fade',
+        }}
       >
         {(props) => (
           <PreSignupScreen
@@ -99,7 +105,10 @@ export function RootNavigator() {
       {/* Auth Screens - Always available */}
       <Stack.Screen
         name="Login"
-        options={{ headerShown: false }}
+        options={{ 
+          headerShown: false,
+          animation: 'fade',
+        }}
       >
         {(props) => (
           <LoginScreen
@@ -118,7 +127,10 @@ export function RootNavigator() {
       </Stack.Screen>
       <Stack.Screen
         name="Register"
-        options={{ headerShown: false }}
+        options={{ 
+          headerShown: false,
+          animation: 'fade',
+        }}
       >
         {(props) => (
           <RegisterScreen
