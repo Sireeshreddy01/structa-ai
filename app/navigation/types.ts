@@ -7,6 +7,7 @@ import type { Document } from '../../domain/models';
 
 export type RootStackParamList = {
   Onboarding: undefined;
+  PreSignup: undefined;
   Login: undefined;
   Register: undefined;
   Home: undefined;

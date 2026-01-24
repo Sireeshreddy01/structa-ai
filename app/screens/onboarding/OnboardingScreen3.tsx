@@ -6,27 +6,24 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
-  Image,
+  StatusBar,
 } from 'react-native';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
 const COLORS = {
-  primary: '#111827',
-  primaryLight: '#374151',
-  background: '#FAFAFA',
+  primary: '#000000',
+  background: '#FFFFFF',
   surface: '#FFFFFF',
-  textPrimary: '#111827',
-  textSecondary: '#6B7280',
+  surfaceLight: '#F9FAFB',
+  textPrimary: '#000000',
+  textMuted: '#666666',
   white: '#FFFFFF',
-  dotInactive: '#D1D5DB',
+  border: '#E5E7EB',
+  homeIndicator: 'rgba(0, 0, 0, 0.1)',
 };
-
-// 3D Vault cloud image
-const HERO_IMAGE_URL = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCu0Xt271OKFpUA_qRfrtUJmo9ErXgG7hTo48iKXyQ7KI-ybFv37jaqrJ_wSsaY_WmH8VTfTJbBaF6pcnPVGgCZzjZhrS1iCZ_I60SUVLjeZ2w7LLBdlDXfEdMTbUfNnb6QmkfNLq2xNe28B_q8icKlOQwNbkuzKkfK_tBwU7U8UEp5yKCCktEU7Srt-zvPG5RTv_qNxTgoPKc8jfw2twAgIVFB-aetXQxZQM_mrbexsHXUlmZXk-Af2BG-53isM-hE0WE3MbC6eSY';
 
 interface OnboardingScreen3Props {
   onNext?: () => void;
@@ -38,17 +35,16 @@ interface OnboardingScreen3Props {
 export const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({
   onNext,
   onSkip,
-  currentIndex = 2,
-  totalScreens = 3,
 }) => {
   const insets = useSafeAreaInsets();
-  
-  // Floating icon animations
-  const bounce1 = useRef(new Animated.Value(0)).current;
-  const bounce2 = useRef(new Animated.Value(0)).current;
+
+  // Floating animations
+  const float1 = useRef(new Animated.Value(0)).current;
+  const float2 = useRef(new Animated.Value(0)).current;
+  const float3 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const createBounce = (anim: Animated.Value, duration: number, delay: number) => {
+    const createFloat = (anim: Animated.Value, duration: number, delay: number) => {
       return Animated.loop(
         Animated.sequence([
           Animated.delay(delay),
@@ -66,110 +62,119 @@ export const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({
       );
     };
 
-    const anim1 = createBounce(bounce1, 3000, 0);
-    const anim2 = createBounce(bounce2, 4000, 1000);
+    const anim1 = createFloat(float1, 3000, 0);
+    const anim2 = createFloat(float2, 3500, 300);
+    const anim3 = createFloat(float3, 4000, 600);
 
     anim1.start();
     anim2.start();
+    anim3.start();
 
     return () => {
       anim1.stop();
       anim2.stop();
+      anim3.stop();
     };
-  }, [bounce1, bounce2]);
+  }, [float1, float2, float3]);
 
-  const translateY1 = bounce1.interpolate({
+  const translateY1 = float1.interpolate({
     inputRange: [0, 1],
     outputRange: [0, -8],
   });
 
-  const translateY2 = bounce2.interpolate({
+  const translateY2 = float2.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -8],
+    outputRange: [0, -6],
+  });
+
+  const translateY3 = float3.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -10],
   });
 
   return (
     <View style={styles.container}>
-      {/* Background Glow Effects */}
-      <View style={styles.glowTopRight} />
-      <View style={styles.glowBottomLeft} />
-      <View style={styles.glowMiddle} />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
-      <View style={[styles.content, { paddingTop: insets.top + 16 }]}>
-        {/* Hero Section */}
+      {/* Monochrome Mesh Background */}
+      <View style={styles.meshBackground} />
+
+      <View style={[styles.content, { paddingTop: insets.top + 20, paddingBottom: insets.bottom || 10 }]}>
+        {/* Hero Section - Export Icons */}
         <View style={styles.heroSection}>
-          {/* Purple glow behind image */}
+          {/* Blur glow */}
           <View style={styles.imageGlow} />
-          
-          {/* Main Image */}
-          <View style={styles.imageContainer}>
-            <Image
-              source={{ uri: HERO_IMAGE_URL }}
-              style={styles.heroImage}
-              resizeMode="cover"
-            />
-            
-            {/* Floating Lock Icon */}
+
+          {/* Icons Container */}
+          <View style={styles.iconsContainer}>
+            {/* Cloud Upload Icon */}
             <Animated.View
               style={[
                 styles.floatingIcon,
-                styles.floatingIconRight,
+                styles.iconCloud,
                 { transform: [{ translateY: translateY1 }] },
               ]}
             >
-              <MaterialIcons name="lock" size={24} color={COLORS.primary} />
+              <MaterialIcons name="cloud-upload" size={32} color={COLORS.primary} />
             </Animated.View>
 
-            {/* Floating Cloud Icon */}
+            {/* Lock/Security Icon */}
             <Animated.View
               style={[
                 styles.floatingIcon,
-                styles.floatingIconLeft,
+                styles.iconLock,
                 { transform: [{ translateY: translateY2 }] },
               ]}
             >
-              <MaterialIcons name="cloud-upload" size={24} color={COLORS.primary} />
+              <MaterialIcons name="lock" size={28} color={COLORS.primary} />
             </Animated.View>
+
+            {/* Sync/Export Icon */}
+            <Animated.View
+              style={[
+                styles.floatingIcon,
+                styles.iconSync,
+                { transform: [{ translateY: translateY3 }] },
+              ]}
+            >
+              <MaterialIcons name="sync" size={30} color={COLORS.primary} />
+            </Animated.View>
+
+            {/* Center Vault Icon */}
+            <View style={styles.centerIcon}>
+              <MaterialIcons name="folder" size={64} color={COLORS.primary} />
+            </View>
           </View>
         </View>
 
         {/* Text Content */}
         <View style={styles.textSection}>
-          {/* Accent bar */}
-          <LinearGradient
-            colors={[COLORS.primary, COLORS.primaryLight]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.accentBar}
-          />
-          
           <Text style={styles.title}>
-            Ready for Your{'\n'}
-            <Text style={styles.titleGradient}>Workflow</Text>
+            Ready for{'\n'}
+            <Text style={styles.titleMuted}>Your Workflow</Text>
           </Text>
           <Text style={styles.subtitle}>
-            Export to your favorite tools in seconds. Secure, fast, and structured.
+            Export to your favorite tools in seconds. Secure, fast, and always structured.
           </Text>
         </View>
 
         {/* Get Started Button */}
-        <View style={styles.buttonSection}>
-          <TouchableOpacity
-            style={styles.getStartedButton}
-            onPress={onNext}
-            activeOpacity={0.9}
-          >
-            <Text style={styles.getStartedText}>Get Started</Text>
-            <MaterialIcons name="arrow-forward" size={24} color={COLORS.white} />
-          </TouchableOpacity>
-          
-          <Text style={styles.termsText}>
-            By continuing, you agree to our Terms & Privacy Policy
-          </Text>
-        </View>
+        <TouchableOpacity
+          style={styles.getStartedButton}
+          onPress={onNext}
+          activeOpacity={0.9}
+        >
+          <Text style={styles.getStartedText}>Get Started</Text>
+          <MaterialIcons name="arrow-forward" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+
+        {/* Terms Text */}
+        <Text style={styles.termsText}>
+          By continuing, you agree to our Terms & Privacy Policy
+        </Text>
 
         {/* Home Indicator */}
-        <View style={[styles.homeIndicator, { paddingBottom: insets.bottom || 8 }]}>
+        <View style={styles.homeIndicator}>
           <View style={styles.homeIndicatorBar} />
         </View>
       </View>
@@ -182,147 +187,134 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  glowTopRight: {
+  meshBackground: {
     position: 'absolute',
-    top: -60,
-    right: -80,
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: 'rgba(17, 24, 39, 0.04)',
-  },
-  glowBottomLeft: {
-    position: 'absolute',
-    bottom: '20%',
-    left: -80,
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: 'rgba(17, 24, 39, 0.03)',
-  },
-  glowMiddle: {
-    position: 'absolute',
-    top: '40%',
-    right: '10%',
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: 'rgba(17, 24, 39, 0.02)',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '60%',
+    backgroundColor: 'transparent',
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 32,
   },
   heroSection: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -40,
   },
   imageGlow: {
     position: 'absolute',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: 'rgba(200, 200, 200, 0.3)',
+  },
+  iconsContainer: {
     width: 240,
     height: 240,
-    borderRadius: 120,
-    backgroundColor: 'rgba(17, 24, 39, 0.06)',
-  },
-  imageContainer: {
-    width: 256,
-    height: 256,
-    borderRadius: 24,
     position: 'relative',
-  },
-  heroImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   floatingIcon: {
     position: 'absolute',
-    backgroundColor: COLORS.surface,
-    padding: 12,
-    borderRadius: 16,
+    backgroundColor: COLORS.white,
+    borderRadius: 20,
+    padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.12,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.06)',
+    borderColor: COLORS.border,
   },
-  floatingIconRight: {
-    right: -16,
-    top: 40,
+  iconCloud: {
+    top: 10,
+    left: 20,
   },
-  floatingIconLeft: {
-    left: -8,
-    bottom: 48,
+  iconLock: {
+    top: 30,
+    right: 10,
+  },
+  iconSync: {
+    bottom: 20,
+    left: 40,
+  },
+  centerIcon: {
+    backgroundColor: COLORS.surfaceLight,
+    borderRadius: 32,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   textSection: {
-    marginBottom: 24,
-  },
-  accentBar: {
-    width: 48,
-    height: 6,
-    borderRadius: 3,
+    marginTop: 32,
     marginBottom: 24,
   },
   title: {
-    fontSize: 36,
-    fontWeight: '800',
-    lineHeight: 42,
-    letterSpacing: -0.5,
+    fontSize: 44,
+    fontWeight: '700',
+    lineHeight: 48,
+    letterSpacing: -1,
     color: COLORS.textPrimary,
-    marginBottom: 16,
+    marginBottom: 24,
   },
-  titleGradient: {
-    color: COLORS.primary,
+  titleMuted: {
+    color: COLORS.textPrimary,
+    opacity: 0.4,
   },
   subtitle: {
-    fontSize: 17,
-    fontWeight: '400',
-    lineHeight: 26,
-    color: COLORS.textSecondary,
-    maxWidth: '90%',
-  },
-  buttonSection: {
-    paddingBottom: 8,
+    fontSize: 18,
+    fontWeight: '500',
+    lineHeight: 28,
+    color: COLORS.textMuted,
+    paddingRight: 16,
   },
   getStartedButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
     backgroundColor: COLORS.primary,
-    height: 72,
-    borderRadius: 16,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.35,
-    shadowRadius: 24,
+    borderRadius: 999,
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 30,
     elevation: 12,
   },
   getStartedText: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '600',
     color: COLORS.white,
   },
   termsText: {
-    marginTop: 20,
-    textAlign: 'center',
     fontSize: 12,
-    fontWeight: '500',
-    color: '#6B7280',
+    color: COLORS.textMuted,
+    textAlign: 'center',
+    marginTop: 16,
   },
   homeIndicator: {
     alignItems: 'center',
-    paddingTop: 16,
+    paddingTop: 24,
     paddingBottom: 8,
   },
   homeIndicatorBar: {
-    width: 134,
-    height: 5,
+    width: 128,
+    height: 6,
     borderRadius: 3,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: COLORS.homeIndicator,
   },
 });
+
+export default OnboardingScreen3;

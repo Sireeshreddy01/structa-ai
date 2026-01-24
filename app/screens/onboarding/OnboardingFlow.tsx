@@ -130,7 +130,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#0A0A0A',
   },
   slide: {
     width,

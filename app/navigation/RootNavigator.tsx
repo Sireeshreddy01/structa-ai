@@ -16,6 +16,7 @@ import { ResultScreen } from '../screens/ResultScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
 import { OnboardingFlow } from '../screens/onboarding';
+import { PreSignupScreen } from '../screens/auth/PreSignupScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -64,8 +65,21 @@ export function RootNavigator() {
       >
         {(props) => (
           <OnboardingFlow
-            onComplete={() => props.navigation.navigate('Login')}
-            onSkip={() => props.navigation.navigate('Login')}
+            onComplete={() => props.navigation.navigate('PreSignup')}
+            onSkip={() => props.navigation.navigate('PreSignup')}
+          />
+        )}
+      </Stack.Screen>
+
+      {/* Pre-Signup Welcome Screen */}
+      <Stack.Screen
+        name="PreSignup"
+        options={{ headerShown: false }}
+      >
+        {(props) => (
+          <PreSignupScreen
+            onProceed={() => props.navigation.navigate('Register')}
+            onSignIn={() => props.navigation.navigate('Login')}
           />
         )}
       </Stack.Screen>
