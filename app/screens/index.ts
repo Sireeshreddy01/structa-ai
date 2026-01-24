@@ -1,6 +1,9 @@
 // Home
 export { HomeScreen } from './home';
 
+// Profile
+export { ProfileScreen } from './profile';
+
 // Core Screens
 export { CameraScreen } from './CameraScreen';
 export { ProcessingScreen } from './ProcessingScreen';

@@ -11,6 +11,7 @@ import { apiClient } from '../../infra/api/client';
 
 // Screens
 import { HomeScreen } from '../screens/home';
+import { ProfileScreen } from '../screens/profile';
 import { CameraScreen } from '../screens/CameraScreen';
 import { ProcessingScreen } from '../screens/ProcessingScreen';
 import { ResultScreen } from '../screens/ResultScreen';
@@ -136,12 +137,37 @@ export function RootNavigator() {
       {/* Main App Screens - Always defined, controlled by initialRouteName */}
       <Stack.Screen
         name="Home"
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+          animation: 'fade',
+        }}
       >
         {(props) => (
           <HomeScreen
             onNavigateToCamera={() => props.navigation.navigate('Camera')}
-            onNavigateToProfile={() => {}}
+            onNavigateToProfile={() => props.navigation.navigate('Profile')}
+          />
+        )}
+      </Stack.Screen>
+      <Stack.Screen
+        name="Profile"
+        options={{
+          headerShown: false,
+          animation: 'fade',
+        }}
+      >
+        {(props) => (
+          <ProfileScreen
+            onNavigateToHome={() => props.navigation.navigate('Home')}
+            onLogout={() => {
+              setIsAuthenticated(false);
+              props.navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'Onboarding' }],
+                })
+              );
+            }}
           />
         )}
       </Stack.Screen>

@@ -139,8 +139,8 @@ export function HomeScreen({ onNavigateToCamera, onNavigateToProfile }: HomeScre
             hasBorder
           />
           <ActionCard
-            icon="transform"
-            label="Convert"
+            icon="library-books"
+            label="Library"
             backgroundColor={COLORS.accentGreen}
           />
           <ActionCard
