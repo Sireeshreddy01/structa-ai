@@ -6,6 +6,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { Document } from '../../domain/models';
 
 export type RootStackParamList = {
+  Onboarding: undefined;
   Login: undefined;
   Register: undefined;
   Home: undefined;

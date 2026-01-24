@@ -15,6 +15,7 @@ import { ProcessingScreen } from '../screens/ProcessingScreen';
 import { ResultScreen } from '../screens/ResultScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
+import { OnboardingFlow } from '../screens/onboarding';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -42,7 +43,7 @@ export function RootNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName={isAuthenticated ? 'Home' : 'Login'}
+      initialRouteName="Onboarding"
       screenOptions={{
         headerStyle: {
           backgroundColor: '#1a1a2e',
@@ -56,6 +57,19 @@ export function RootNavigator() {
         },
       }}
     >
+      {/* Onboarding Flow - Swipeable */}
+      <Stack.Screen
+        name="Onboarding"
+        options={{ headerShown: false }}
+      >
+        {(props) => (
+          <OnboardingFlow
+            onComplete={() => props.navigation.navigate('Login')}
+            onSkip={() => props.navigation.navigate('Login')}
+          />
+        )}
+      </Stack.Screen>
+
       {!isAuthenticated ? (
         <>
           <Stack.Screen
