@@ -44,8 +44,9 @@ interface PreSignupScreenProps {
 const RegisterForm: React.FC<{
   onSuccess: () => void;
   onSwitchToLogin: () => void;
+  onBack: () => void;
   insets: { top: number; bottom: number };
-}> = ({ onSuccess, onSwitchToLogin, insets }) => {
+}> = ({ onSuccess, onSwitchToLogin, onBack, insets }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -82,9 +83,13 @@ const RegisterForm: React.FC<{
 
   return (
     <View style={[registerStyles.container, { paddingTop: insets.top + 16 }]}>
-      {/* Header */}
+      {/* Header with back button */}
       <View style={registerStyles.header}>
+        <TouchableOpacity style={registerStyles.backButton} onPress={onBack}>
+          <MaterialIcons name="chevron-left" size={24} color={COLORS.textPrimary} />
+        </TouchableOpacity>
         <Text style={registerStyles.logo}>structa-ai</Text>
+        <View style={registerStyles.headerSpacer} />
       </View>
 
       {/* Card */}
@@ -217,8 +222,23 @@ const registerStyles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   header: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerSpacer: {
+    width: 40,
   },
   logo: {
     fontSize: 20,
@@ -457,51 +477,63 @@ export const PreSignupScreen: React.FC<PreSignupScreenProps> = ({
     outputRange: [0, 6],
   });
 
-  // Pan responder for slider - now scrolls to register page
-  const createPanResponder = (maxSlideValue: number) => PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: () => true,
-    onPanResponderMove: (_, gestureState) => {
-      const newX = Math.max(0, Math.min(gestureState.dx, maxSlideValue));
-      sliderX.setValue(newX);
-    },
-    onPanResponderRelease: (_, gestureState) => {
-      if (gestureState.dx > maxSlideValue * 0.7) {
-        // Complete the slide - scroll to register page
-        Animated.spring(sliderX, {
-          toValue: maxSlideValue,
-          useNativeDriver: true,
-          tension: 50,
-          friction: 8,
-        }).start(() => {
-          scrollToRegister();
-          // Reset slider after a delay
-          setTimeout(() => {
-            sliderX.setValue(0);
-          }, 300);
-        });
-      } else {
-        // Reset to start
-        Animated.spring(sliderX, {
-          toValue: 0,
-          useNativeDriver: true,
-          tension: 50,
-          friction: 8,
-        }).start();
-      }
-    },
-  });
-
+  // Slider max value ref to use in pan responder
+  const maxSlideRef = useRef(0);
   const maxSlide = sliderWidth - SLIDER_THUMB_SIZE - (SLIDER_PADDING * 2);
-  const panResponder = useRef(createPanResponder(maxSlide)).current;
-
-  // Recreate pan responder when dimensions change
-  const panResponderRef = useRef(panResponder);
+  
   useEffect(() => {
-    if (maxSlide > 0) {
-      panResponderRef.current = createPanResponder(maxSlide);
-    }
+    maxSlideRef.current = maxSlide;
   }, [maxSlide]);
+
+  // Pan responder for slider - now scrolls to register page
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dx) > 5;
+      },
+      onPanResponderGrant: () => {
+        // Stop any ongoing animation
+      },
+      onPanResponderMove: (_, gestureState) => {
+        const maxValue = maxSlideRef.current;
+        if (maxValue > 0) {
+          const newX = Math.max(0, Math.min(gestureState.dx, maxValue));
+          sliderX.setValue(newX);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        const maxValue = maxSlideRef.current;
+        if (maxValue > 0 && gestureState.dx > maxValue * 0.6) {
+          // Complete the slide - scroll to register page
+          Animated.spring(sliderX, {
+            toValue: maxValue,
+            useNativeDriver: true,
+            tension: 80,
+            friction: 10,
+          }).start(() => {
+            scrollToRegister();
+            // Reset slider after animation
+            setTimeout(() => {
+              Animated.timing(sliderX, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: true,
+              }).start();
+            }, 300);
+          });
+        } else {
+          // Reset to start
+          Animated.spring(sliderX, {
+            toValue: 0,
+            useNativeDriver: true,
+            tension: 80,
+            friction: 10,
+          }).start();
+        }
+      },
+    })
+  ).current;
   
   // Handle page change
   const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
@@ -714,7 +746,7 @@ export const PreSignupScreen: React.FC<PreSignupScreenProps> = ({
                 styles.sliderThumb,
                 { transform: [{ translateX: sliderX }] },
               ]}
-              {...panResponderRef.current.panHandlers}
+              {...panResponder.panHandlers}
             >
               <MaterialIcons name="arrow-forward" size={24} color={COLORS.white} />
             </Animated.View>
@@ -742,18 +774,11 @@ export const PreSignupScreen: React.FC<PreSignupScreenProps> = ({
       {/* Background */}
       <View style={styles.bgGradient1} />
       <View style={styles.bgGradient2} />
-      
-      {/* Back Button */}
-      <TouchableOpacity 
-        style={[styles.backButton, { top: insets.top + 12 }]} 
-        onPress={scrollToWelcome}
-      >
-        <MaterialIcons name="chevron-left" size={24} color={COLORS.textPrimary} />
-      </TouchableOpacity>
 
       <RegisterForm
         onSuccess={() => onProceed?.()}
         onSwitchToLogin={() => onSignIn?.()}
+        onBack={scrollToWelcome}
         insets={insets}
       />
     </KeyboardAvoidingView>
@@ -804,24 +829,6 @@ const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
     backgroundColor: COLORS.background,
-  },
-  backButton: {
-    position: 'absolute',
-    left: 20,
-    width: 40,
-    height: 40,
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
   },
   pageIndicator: {
     position: 'absolute',

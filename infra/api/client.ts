@@ -202,6 +202,17 @@ class ApiClient {
   ): Promise<{ status: Document['status']; progress?: number }> {
     return this.request(`/api/documents/${documentId}/status`);
   }
+
+  // User info
+  async getUserInfo(): Promise<{ name: string; email: string } | null> {
+    try {
+      const result = await this.request<{ success: boolean; data: { user: { name: string; email: string } } }>('/api/auth/me');
+      return result?.data?.user || null;
+    } catch (error) {
+      console.log('[API] getUserInfo error:', error);
+      return null;
+    }
+  }
 }
 
 export const apiClient = new ApiClient();
