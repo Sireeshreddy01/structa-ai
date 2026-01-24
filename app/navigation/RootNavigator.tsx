@@ -12,6 +12,8 @@ import { apiClient } from '../../infra/api/client';
 // Screens
 import { HomeScreen } from '../screens/home';
 import { ProfileScreen } from '../screens/profile';
+import { LibraryScreen } from '../screens/library';
+import { NotificationsPanel } from '../screens/notifications';
 import { CameraScreen } from '../screens/CameraScreen';
 import { ProcessingScreen } from '../screens/ProcessingScreen';
 import { ResultScreen } from '../screens/ResultScreen';
@@ -141,11 +143,13 @@ export function RootNavigator() {
           headerShown: false,
           animation: 'fade',
         }}
-      >
+      >  
         {(props) => (
           <HomeScreen
             onNavigateToCamera={() => props.navigation.navigate('Camera')}
             onNavigateToProfile={() => props.navigation.navigate('Profile')}
+            onNavigateToLibrary={() => props.navigation.navigate('Library')}
+            onNavigateToNotifications={() => props.navigation.navigate('Notifications')}
           />
         )}
       </Stack.Screen>
@@ -168,6 +172,33 @@ export function RootNavigator() {
                 })
               );
             }}
+          />
+        )}
+      </Stack.Screen>
+      <Stack.Screen
+        name="Library"
+        options={{
+          headerShown: false,
+          animation: 'slide_from_right',
+        }}
+      >
+        {(props) => (
+          <LibraryScreen
+            onBack={() => props.navigation.goBack()}
+            onDocumentPress={(doc) => console.log('Open document:', doc.id)}
+          />
+        )}
+      </Stack.Screen>
+      <Stack.Screen
+        name="Notifications"
+        options={{
+          headerShown: false,
+          animation: 'slide_from_right',
+        }}
+      >
+        {(props) => (
+          <NotificationsPanel
+            onBack={() => props.navigation.goBack()}
           />
         )}
       </Stack.Screen>

@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from 'react';
+/**
+ * Profile Screen with internal navigation to sub-screens
+ */
+
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,30 +13,33 @@ import {
   Dimensions,
   Image,
   Alert,
+  Animated,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '../../../infra/api/client';
+import { PROFILE_COLORS } from './theme';
+
+// Sub-screens
+import { AccountScreen } from './AccountScreen';
+import { SecurityScreen } from './SecurityScreen';
+import { NotificationsScreen } from './NotificationsScreen';
+import { ConnectedAppsScreen } from './ConnectedAppsScreen';
+import { ChangePasswordScreen } from './ChangePasswordScreen';
+import { ExportFormatScreen } from './ExportFormatScreen';
+import { PrivacyScreen } from './PrivacyScreen';
 
 const { width } = Dimensions.get('window');
 
-const COLORS = {
-  background: '#FAFAFA',
-  white: '#FFFFFF',
-  black: '#111111',
-  textPrimary: '#111111',
-  textSecondary: '#6B7280',
-  textMuted: '#9CA3AF',
-  border: '#E5E7EB',
-  borderLight: '#F3F4F6',
-  accentBlue: 'rgba(191, 219, 254, 0.6)',
-  accentYellow: 'rgba(254, 240, 138, 0.6)',
-  accentGreen: 'rgba(187, 247, 208, 0.6)',
-  accentPurple: 'rgba(221, 214, 254, 0.6)',
-  iconBg: '#F9FAFB',
-  redLight: '#FEF2F2',
-  red: '#EF4444',
-};
+type SubScreen = 
+  | 'main'
+  | 'account'
+  | 'security'
+  | 'notifications'
+  | 'connectedApps'
+  | 'changePassword'
+  | 'exportFormat'
+  | 'privacy';
 
 interface ProfileScreenProps {
   onNavigateToHome?: () => void;
@@ -43,6 +50,10 @@ export function ProfileScreen({ onNavigateToHome, onLogout }: ProfileScreenProps
   const insets = useSafeAreaInsets();
   const [userName, setUserName] = useState('User');
   const [userImage, setUserImage] = useState<string | null>(null);
+  const [currentScreen, setCurrentScreen] = useState<SubScreen>('main');
+  
+  // Animation for screen transitions
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     loadUserInfo();
@@ -57,6 +68,29 @@ export function ProfileScreen({ onNavigateToHome, onLogout }: ProfileScreenProps
     } catch (error) {
       // Use default name
     }
+  };
+
+  const navigateTo = (screen: SubScreen) => {
+    // Animate out
+    Animated.timing(slideAnim, {
+      toValue: -width,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      setCurrentScreen(screen);
+      slideAnim.setValue(width);
+      // Animate in
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 65,
+        friction: 11,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+
+  const goBack = () => {
+    navigateTo('main');
   };
 
   const handleLogout = () => {
@@ -77,56 +111,31 @@ export function ProfileScreen({ onNavigateToHome, onLogout }: ProfileScreenProps
     );
   };
 
-  const SettingsCard = ({
-    icon,
-    label,
-    backgroundColor,
-    onPress,
-  }: {
-    icon: keyof typeof MaterialIcons.glyphMap;
-    label: string;
-    backgroundColor: string;
-    onPress?: () => void;
-  }) => (
-    <TouchableOpacity
-      style={[styles.settingsCard, { backgroundColor }]}
-      activeOpacity={0.8}
-      onPress={onPress}
-    >
-      <MaterialIcons name={icon} size={28} color={COLORS.black} />
-      <Text style={styles.settingsCardLabel}>{label}</Text>
-    </TouchableOpacity>
-  );
+  // Render sub-screen based on current state
+  const renderSubScreen = () => {
+    switch (currentScreen) {
+      case 'account':
+        return <AccountScreen onBack={goBack} />;
+      case 'security':
+        return <SecurityScreen onBack={goBack} onChangePassword={() => navigateTo('changePassword')} />;
+      case 'notifications':
+        return <NotificationsScreen onBack={goBack} />;
+      case 'connectedApps':
+        return <ConnectedAppsScreen onBack={goBack} />;
+      case 'changePassword':
+        return <ChangePasswordScreen onBack={goBack} />;
+      case 'exportFormat':
+        return <ExportFormatScreen onBack={goBack} />;
+      case 'privacy':
+        return <PrivacyScreen onBack={goBack} />;
+      default:
+        return null;
+    }
+  };
 
-  const PreferenceRow = ({
-    icon,
-    label,
-    onPress,
-  }: {
-    icon: keyof typeof MaterialIcons.glyphMap;
-    label: string;
-    onPress?: () => void;
-  }) => (
-    <TouchableOpacity
-      style={styles.preferenceRow}
-      activeOpacity={0.7}
-      onPress={onPress}
-    >
-      <View style={styles.preferenceLeft}>
-        <View style={styles.preferenceIconContainer}>
-          <MaterialIcons name={icon} size={20} color={COLORS.black} />
-        </View>
-        <Text style={styles.preferenceLabel}>{label}</Text>
-      </View>
-      <MaterialIcons name="chevron-right" size={24} color={COLORS.border} />
-    </TouchableOpacity>
-  );
-
-  return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-
-      {/* Main Content */}
+  // Main settings screen content
+  const renderMainScreen = () => (
+    <>
       <ScrollView
         style={styles.content}
         contentContainerStyle={[
@@ -149,16 +158,16 @@ export function ProfileScreen({ onNavigateToHome, onLogout }: ProfileScreenProps
                 <Image source={{ uri: userImage }} style={styles.avatar} />
               ) : (
                 <View style={styles.avatarPlaceholder}>
-                  <MaterialIcons name="person" size={48} color={COLORS.textMuted} />
+                  <MaterialIcons name="person" size={48} color={PROFILE_COLORS.textMuted} />
                 </View>
               )}
             </View>
             <TouchableOpacity style={styles.editAvatarButton}>
-              <MaterialIcons name="edit" size={14} color={COLORS.white} />
+              <MaterialIcons name="edit" size={14} color={PROFILE_COLORS.white} />
             </TouchableOpacity>
           </View>
           <Text style={styles.profileName}>{userName}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigateTo('account')}>
             <Text style={styles.editProfileText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
@@ -168,22 +177,26 @@ export function ProfileScreen({ onNavigateToHome, onLogout }: ProfileScreenProps
           <SettingsCard
             icon="person"
             label="Account"
-            backgroundColor={COLORS.accentBlue}
+            backgroundColor={PROFILE_COLORS.accentBlue}
+            onPress={() => navigateTo('account')}
           />
           <SettingsCard
             icon="lock"
             label="Security"
-            backgroundColor={COLORS.accentYellow}
+            backgroundColor={PROFILE_COLORS.accentYellow}
+            onPress={() => navigateTo('security')}
           />
           <SettingsCard
             icon="notifications"
             label="Notifications"
-            backgroundColor={COLORS.accentGreen}
+            backgroundColor={PROFILE_COLORS.accentGreen}
+            onPress={() => navigateTo('notifications')}
           />
           <SettingsCard
             icon="extension"
             label="Connected Apps"
-            backgroundColor={COLORS.accentPurple}
+            backgroundColor={PROFILE_COLORS.accentPurple}
+            onPress={() => navigateTo('connectedApps')}
           />
         </View>
 
@@ -191,9 +204,21 @@ export function ProfileScreen({ onNavigateToHome, onLogout }: ProfileScreenProps
         <View style={styles.preferencesSection}>
           <Text style={styles.sectionTitle}>PREFERENCES</Text>
           <View style={styles.preferencesList}>
-            <PreferenceRow icon="vpn-key" label="Change Password" />
-            <PreferenceRow icon="ios-share" label="Default Export Format" />
-            <PreferenceRow icon="shield" label="Privacy Settings" />
+            <PreferenceRow
+              icon="vpn-key"
+              label="Change Password"
+              onPress={() => navigateTo('changePassword')}
+            />
+            <PreferenceRow
+              icon="ios-share"
+              label="Default Export Format"
+              onPress={() => navigateTo('exportFormat')}
+            />
+            <PreferenceRow
+              icon="shield"
+              label="Privacy Settings"
+              onPress={() => navigateTo('privacy')}
+            />
           </View>
         </View>
 
@@ -209,29 +234,105 @@ export function ProfileScreen({ onNavigateToHome, onLogout }: ProfileScreenProps
 
       {/* Bottom Navigation */}
       <View style={[styles.bottomNav, { paddingBottom: insets.bottom + 16 }]}>
-        {/* Left Pill Nav */}
         <View style={styles.navPill}>
           <TouchableOpacity style={styles.navPillButton} onPress={onNavigateToHome}>
-            <MaterialIcons name="layers" size={22} color={COLORS.textMuted} />
+            <MaterialIcons name="layers" size={22} color={PROFILE_COLORS.textMuted} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.navPillButtonActive}>
-            <MaterialIcons name="person" size={22} color={COLORS.white} />
+            <MaterialIcons name="person" size={22} color={PROFILE_COLORS.white} />
           </TouchableOpacity>
         </View>
-
-        {/* FAB */}
         <TouchableOpacity style={styles.fab} activeOpacity={0.9}>
-          <MaterialIcons name="add" size={32} color={COLORS.white} />
+          <MaterialIcons name="add" size={32} color={PROFILE_COLORS.white} />
         </TouchableOpacity>
       </View>
+    </>
+  );
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      
+      {currentScreen === 'main' ? (
+        renderMainScreen()
+      ) : (
+        <Animated.View 
+          style={[
+            styles.subScreenContainer,
+            { transform: [{ translateX: slideAnim }] }
+          ]}
+        >
+          {renderSubScreen()}
+        </Animated.View>
+      )}
     </View>
   );
 }
 
+// ============================================
+// Local Components
+// ============================================
+
+function SettingsCard({
+  icon,
+  label,
+  backgroundColor,
+  onPress,
+}: {
+  icon: keyof typeof MaterialIcons.glyphMap;
+  label: string;
+  backgroundColor: string;
+  onPress?: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      style={[styles.settingsCard, { backgroundColor }]}
+      activeOpacity={0.8}
+      onPress={onPress}
+    >
+      <MaterialIcons name={icon} size={28} color={PROFILE_COLORS.black} />
+      <Text style={styles.settingsCardLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function PreferenceRow({
+  icon,
+  label,
+  onPress,
+}: {
+  icon: keyof typeof MaterialIcons.glyphMap;
+  label: string;
+  onPress?: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      style={styles.preferenceRow}
+      activeOpacity={0.7}
+      onPress={onPress}
+    >
+      <View style={styles.preferenceLeft}>
+        <View style={styles.preferenceIconContainer}>
+          <MaterialIcons name={icon} size={20} color={PROFILE_COLORS.black} />
+        </View>
+        <Text style={styles.preferenceLabel}>{label}</Text>
+      </View>
+      <MaterialIcons name="chevron-right" size={24} color={PROFILE_COLORS.border} />
+    </TouchableOpacity>
+  );
+}
+
+// ============================================
+// Styles
+// ============================================
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: PROFILE_COLORS.background,
+  },
+  subScreenContainer: {
+    flex: 1,
   },
   content: {
     flex: 1,
@@ -245,7 +346,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: '700',
-    color: COLORS.black,
+    color: PROFILE_COLORS.black,
     letterSpacing: -0.5,
   },
   profileSection: {
@@ -261,7 +362,7 @@ const styles = StyleSheet.create({
     height: 112,
     borderRadius: 56,
     borderWidth: 2,
-    borderColor: COLORS.white,
+    borderColor: PROFILE_COLORS.white,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -276,7 +377,7 @@ const styles = StyleSheet.create({
   avatarPlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: COLORS.border,
+    backgroundColor: PROFILE_COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -287,23 +388,23 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: COLORS.black,
+    backgroundColor: PROFILE_COLORS.black,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: COLORS.white,
+    borderColor: PROFILE_COLORS.white,
   },
   profileName: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.black,
+    color: PROFILE_COLORS.black,
     letterSpacing: -0.3,
     marginBottom: 4,
   },
   editProfileText: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.textSecondary,
+    color: PROFILE_COLORS.textSecondary,
   },
   settingsGrid: {
     flexDirection: 'row',
@@ -321,7 +422,7 @@ const styles = StyleSheet.create({
   settingsCardLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.black,
+    color: PROFILE_COLORS.black,
     letterSpacing: 0.3,
   },
   preferencesSection: {
@@ -330,7 +431,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.textMuted,
+    color: PROFILE_COLORS.textMuted,
     letterSpacing: 1.5,
     marginLeft: 4,
     marginBottom: 16,
@@ -342,11 +443,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.white,
+    backgroundColor: PROFILE_COLORS.white,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
+    borderColor: PROFILE_COLORS.borderLight,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.02,
@@ -362,17 +463,17 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.iconBg,
+    backgroundColor: PROFILE_COLORS.iconBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   preferenceLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.black,
+    color: PROFILE_COLORS.black,
   },
   logoutButton: {
-    backgroundColor: COLORS.redLight,
+    backgroundColor: PROFILE_COLORS.redLight,
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
@@ -385,7 +486,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.red,
+    color: PROFILE_COLORS.red,
   },
   bottomNav: {
     position: 'absolute',
@@ -398,7 +499,7 @@ const styles = StyleSheet.create({
   },
   navPill: {
     flexDirection: 'row',
-    backgroundColor: COLORS.black,
+    backgroundColor: PROFILE_COLORS.black,
     borderRadius: 32,
     padding: 8,
     gap: 8,
@@ -427,7 +528,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: COLORS.black,
+    backgroundColor: PROFILE_COLORS.black,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',

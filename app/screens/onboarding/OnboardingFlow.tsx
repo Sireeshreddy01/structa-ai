@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { OnboardingScreen1 } from './OnboardingScreen1';
 import { OnboardingScreen2 } from './OnboardingScreen2';
 import { OnboardingScreen3 } from './OnboardingScreen3';
 
@@ -22,7 +21,6 @@ interface OnboardingFlowProps {
 }
 
 const SCREENS = [
-  { key: '1', Component: OnboardingScreen1 },
   { key: '2', Component: OnboardingScreen2 },
   { key: '3', Component: OnboardingScreen3 },
 ];

@@ -12,6 +12,8 @@ export type RootStackParamList = {
   Register: undefined;
   Home: undefined;
   Profile: undefined;
+  Library: undefined;
+  Notifications: undefined;
   Camera: undefined;
   Processing: { documentId: string };
   Result: { document: Document };
@@ -22,6 +24,8 @@ export type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login
 export type RegisterScreenProps = NativeStackScreenProps<RootStackParamList, 'Register'>;
 export type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
 export type ProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'Profile'>;
+export type LibraryScreenProps = NativeStackScreenProps<RootStackParamList, 'Library'>;
+export type NotificationsScreenProps = NativeStackScreenProps<RootStackParamList, 'Notifications'>;
 export type CameraScreenProps = NativeStackScreenProps<RootStackParamList, 'Camera'>;
 export type ProcessingScreenProps = NativeStackScreenProps<RootStackParamList, 'Processing'>;
 export type ResultScreenProps = NativeStackScreenProps<RootStackParamList, 'Result'>;

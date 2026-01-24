@@ -4,6 +4,12 @@ export { HomeScreen } from './home';
 // Profile
 export { ProfileScreen } from './profile';
 
+// Library
+export { LibraryScreen } from './library';
+
+// Notifications
+export { NotificationsPanel } from './notifications';
+
 // Core Screens
 export { CameraScreen } from './CameraScreen';
 export { ProcessingScreen } from './ProcessingScreen';

@@ -32,9 +32,11 @@ const COLORS = {
 interface HomeScreenProps {
   onNavigateToCamera?: () => void;
   onNavigateToProfile?: () => void;
+  onNavigateToLibrary?: () => void;
+  onNavigateToNotifications?: () => void;
 }
 
-export function HomeScreen({ onNavigateToCamera, onNavigateToProfile }: HomeScreenProps) {
+export function HomeScreen({ onNavigateToCamera, onNavigateToProfile, onNavigateToLibrary, onNavigateToNotifications }: HomeScreenProps) {
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
   const [userName, setUserName] = useState('User');
@@ -99,7 +101,7 @@ export function HomeScreen({ onNavigateToCamera, onNavigateToProfile }: HomeScre
         </TouchableOpacity>
 
         {/* Notification Button */}
-        <TouchableOpacity style={styles.headerButton}>
+        <TouchableOpacity style={styles.headerButton} onPress={onNavigateToNotifications}>
           {notificationCount > 0 && (
             <View style={styles.notificationBadge}>
               <Text style={styles.notificationText}>{notificationCount}</Text>
@@ -142,6 +144,7 @@ export function HomeScreen({ onNavigateToCamera, onNavigateToProfile }: HomeScre
             icon="library-books"
             label="Library"
             backgroundColor={COLORS.accentGreen}
+            onPress={onNavigateToLibrary}
           />
           <ActionCard
             icon="smart-toy"
