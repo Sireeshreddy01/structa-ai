@@ -4,13 +4,21 @@
 
 import { Platform } from 'react-native';
 
+// Production API URL (VPS)
+const PRODUCTION_API_URL = 'http://172.200.177.156:9000';
+
 // Use localhost on web, but actual IP for mobile devices
 const getApiUrl = () => {
-  if (Platform.OS === 'web') {
-    return 'http://localhost:3000';
+  // In production builds, always use the VPS
+  if (!__DEV__) {
+    return PRODUCTION_API_URL;
   }
-  // Your Mac's local IP - update this if it changes
-  return process.env.EXPO_PUBLIC_API_URL || 'http://192.168.204.174:3000';
+  
+  if (Platform.OS === 'web') {
+    return 'http://localhost:9000';
+  }
+  // Your Mac's local IP - update this if it changes (for dev only)
+  return process.env.EXPO_PUBLIC_API_URL || 'http://192.168.204.174:9000';
 };
 
 export const AppConfig = {
