@@ -19,7 +19,7 @@ function deriveKey(password: string, salt: Buffer): Buffer {
  * Encrypts data using AES-256-GCM
  */
 export function encrypt(data: Buffer | string, password?: string): Buffer {
-  const secret = password || config.jwtSecret;
+  const secret = password || config.jwt.secret;
   
   // Generate random salt and IV
   const salt = randomBytes(SALT_LENGTH);
@@ -46,7 +46,7 @@ export function encrypt(data: Buffer | string, password?: string): Buffer {
  * Decrypts data encrypted with encrypt()
  */
 export function decrypt(encryptedData: Buffer, password?: string): Buffer {
-  const secret = password || config.jwtSecret;
+  const secret = password || config.jwt.secret;
   
   // Extract components
   const salt = encryptedData.subarray(0, SALT_LENGTH);
@@ -104,7 +104,7 @@ export class SecureFileStorage {
   private password: string;
   
   constructor(password?: string) {
-    this.password = password || config.jwtSecret;
+    this.password = password || config.jwt.secret;
   }
   
   /**

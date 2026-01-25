@@ -136,8 +136,8 @@ export function ConnectedAppsScreen({ onBack }: ConnectedAppsScreenProps) {
         </View>
         <View style={styles.appInfo}>
           <Text style={styles.appName}>{app.name}</Text>
-          <Text style={styles.appDescription}>{app.description}</Text>
-        </View>
+            <Text style={styles.appDescription}>{app.description}</Text>
+          </View>
       </View>
       <View style={[
         styles.statusBadge,

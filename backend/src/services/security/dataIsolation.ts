@@ -94,7 +94,7 @@ export class DataIsolationService {
     
     // Delete in order (respecting foreign keys)
     const blocksDeleted = await prisma.block.deleteMany({
-      where: { pageId: { in: await this._getPageIds(documentIds) } },
+      where: { documentId: { in: documentIds } },
     });
     
     const jobsDeleted = await prisma.job.deleteMany({
@@ -153,11 +153,8 @@ export class DataIsolationService {
     const documents = await prisma.document.findMany({
       where: { userId },
       include: {
-        pages: {
-          include: {
-            blocks: true,
-          },
-        },
+        pages: true,
+        blocks: true,
         jobs: {
           select: {
             id: true,

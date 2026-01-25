@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "structa-ai-mobile",
+    "name": "Structa AI",
     "slug": "structa-ai-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,9 +13,12 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.structa.ai"
     },
     "android": {
+      "package": "com.structa.ai",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -25,6 +28,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1cf94e75-66a8-4d22-87a1-d7d638158176"
+      }
+    },
+    "owner": "suhaibking3"
   }
 }
