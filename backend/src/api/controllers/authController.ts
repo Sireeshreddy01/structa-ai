@@ -36,7 +36,7 @@ export async function register(
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> {
-  const { email, password, name } = req.body;
+  const { email, password, name } = req.body as { email: string; password: string; name?: string };
 
   const existingUser = await prisma.user.findUnique({
     where: { email },
@@ -77,7 +77,7 @@ export async function login(
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> {
-  const { email, password } = req.body;
+  const { email, password } = req.body as { email: string; password: string };
 
   const user = await prisma.user.findUnique({
     where: { email },
