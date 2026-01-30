@@ -9,7 +9,6 @@ export interface AuthenticatedRequest extends Request {
     id: string;
     email: string;
   };
-  body: any;
 }
 
 export async function authMiddleware(
